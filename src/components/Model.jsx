@@ -1,12 +1,13 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import ModalView from "./ModalView";
 import { yellowImg } from "../utils";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
 import { models, sizes } from "../constants";
+import { animateWithGsapTimeline } from "../utils/animations";
 
 function Model() {
   const [size, setSize] = useState("small");
@@ -24,8 +25,26 @@ function Model() {
   const large = useRef(new THREE.Group());
 
   // rotaition
-  const [smallRotaition, setSmallRotaition] = useState(0);
-  const [largeRotaition, setLargeRotaition] = useState(0);
+  const [smallRotation, setSmallRotation] = useState(0);
+  const [largeRotation, setLargeRotation] = useState(0);
+
+  const tl = gsap.timeline();
+
+  useEffect(() => {
+    if (size === "large") {
+      animateWithGsapTimeline(tl, small, smallRotation, "#view1", "#view2", {
+        transform: "translateX(-100%)",
+        duration: 2,
+      });
+    }
+
+    if (size === "small") {
+      animateWithGsapTimeline(tl, large, largeRotation, "#view2", "#view1", {
+        transform: "translateX(0)",
+        duration: 2,
+      });
+    }
+  }, [size]);
 
   useGSAP(() => {
     gsap.to("#heading", { y: 0, opacity: 1 });
@@ -43,7 +62,7 @@ function Model() {
               groupRef={small}
               gsapType="view1"
               controlRef={cameraControlSmall}
-              setRotaitionState={setSmallRotaition}
+              setRotaitionState={setSmallRotation}
               item={model}
               size={size}
             />
@@ -52,7 +71,7 @@ function Model() {
               groupRef={large}
               gsapType="view2"
               controlRef={cameraControlLarge}
-              setRotaitionState={setLargeRotaition}
+              setRotaitionState={setLargeRotation}
               item={model}
               size={size}
             />
